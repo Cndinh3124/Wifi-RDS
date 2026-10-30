@@ -1,0 +1,27 @@
+# /etc/freeradius/3.0/mods-available/wifi_google
+# Module rest gọi dịch vụ wifi-auth (127.0.0.1:8090) để kiểm tra mật khẩu dùng một lần sau khi đăng nhập Google.
+rest wifi_google {
+	tls {
+	}
+	connect_uri = "http://127.0.0.1:8090"
+
+	authorize {
+		uri = "${..connect_uri}/radius/authorize"
+		method = 'post'
+		body = 'json'
+		tls = ${..tls}
+	}
+
+	connect_timeout = 2.0
+
+	pool {
+		start = 0
+		min = 0
+		max = 16
+		spare = 4
+		uses = 0
+		retry_delay = 5
+		lifetime = 0
+		idle_timeout = 60
+	}
+}

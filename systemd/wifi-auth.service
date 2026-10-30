@@ -1,0 +1,20 @@
+[Unit]
+Description=Wi-Fi Google sign-in for captive portal (wifi-auth)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=wifiauth
+Group=wifiauth
+Environment=WIFI_AUTH_CONFIG=/etc/wifi-auth/config.json
+ExecStart=/usr/bin/python3 /opt/wifi-auth/wifi_auth.py
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/wifi-auth
+
+[Install]
+WantedBy=multi-user.target

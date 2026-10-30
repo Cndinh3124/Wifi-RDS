@@ -1,0 +1,8 @@
+# Cấu hình thật (có secret) — không commit
+config.json
+!backend/config.example.json
+*.db
+*.bak*
+__pycache__/
+*.pyc
+.DS_Store
