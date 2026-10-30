@@ -130,15 +130,13 @@ Các khoá trong `/etc/wifi-auth/config.json`:
 - `public_base_url`: `https://auth.truongtayuc.edu.vn`
 - `google_client_id`, `google_client_secret`: từ Bước 4
 - `pfsense_portal_hosts`: host trong địa chỉ portal pfSense, mặc định `172.16.200.2`
-- `allowed_domains` của từng vùng — mặc định:
-  - `wass`: `truongtayuc.edu.vn`, `wass.edu.vn`, `rtholdings.edu.vn`
-  - `penn`: `penn.edu.vn`, `rtholdings.edu.vn`
+- `allowed_domains`: mặc định cả 3 nơi (`wass`, `penn`, `rt`) đều nhận `truongtayuc.edu.vn`, `wass.edu.vn`, `penn.edu.vn`, `rtholdings.edu.vn`
 
 **Nếu lỗi:** `journalctl -u wifi-auth -n 50 --no-pager`.
 
 ## Bước 6 — nginx
 
-Mỗi trường có **tên miền backend và chứng chỉ riêng**: WASS `auth.truongtayuc.edu.vn`, Penn `auth.penn.edu.vn`, RT `auth.rtholdings.edu.vn`.
+Một tên miền backend dùng chung cho cả 3 nơi: `auth.truongtayuc.edu.vn`.
 
 ```bash
 cd /root/Wifi-RDS
@@ -147,14 +145,13 @@ cp nginx-pages/wass/error.html /var/www/wifi/wass/
 cp nginx-pages/penn/error.html /var/www/wifi/penn/
 install -m 644 nginx/wifi-auth-common.conf /etc/nginx/snippets/
 install -m 644 nginx/wifi-auth.conf /etc/nginx/sites-available/
-nano /etc/nginx/sites-available/wifi-auth.conf     # chú thích (#) khối server của trường CHƯA có chứng chỉ
 ln -sf /etc/nginx/sites-available/wifi-auth.conf /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 nginx -t && systemctl reload nginx
 ```
 
 **Mong đợi:** từ máy trong VLAN 200 (đã đăng nhập portal), `https://auth.truongtayuc.edu.vn/healthz` trả về `ok`, không cảnh báo chứng chỉ.
-**Nếu lỗi:** `nginx -t` báo không thấy file chứng chỉ → trường đó chưa có chứng chỉ, chú thích khối server tương ứng. UFW đang bật → `ufw allow 443/tcp`.
+**Nếu lỗi:** `nginx -t` báo không thấy file chứng chỉ → chưa làm xong Bước 3. UFW đang bật → `ufw allow 443/tcp`.
 
 ## Bước 7 — Nối FreeRADIUS với wifi-auth
 

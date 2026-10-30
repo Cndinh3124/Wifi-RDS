@@ -10,16 +10,20 @@ Thiết bị (VLAN 200, DHCP/gateway = pfSense 172.16.200.2)
                                                      └─ mật khẩu dùng 1 lần ─► RADIUS ─► module wifi_google
 ```
 
-## Các trường (tách riêng, không gộp)
+## Các trường
 
-| Trường | Tài khoản Google | Backend | Trang portal |
-|---|---|---|---|
-| WASS | `@truongtayuc.edu.vn`, `@wass.edu.vn` | `auth.truongtayuc.edu.vn` | `pfsense-pages/wass/` |
-| Penn | `@penn.edu.vn` | `auth.penn.edu.vn` | `pfsense-pages/penn/` |
-| RT Holdings | `@rtholdings.edu.vn` | `auth.rtholdings.edu.vn` | chưa có (chờ logo/giao diện) |
+Mọi người dùng là nhân viên / học sinh của hệ thống RT: tài khoản thuộc **bất kỳ** tên miền nào
+(`@truongtayuc.edu.vn`, `@wass.edu.vn`, `@penn.edu.vn`, `@rtholdings.edu.vn`) đăng nhập được ở **cả 3 nơi**.
+Chỉ **giao diện** trang đăng nhập khác nhau:
 
-Mỗi trường có OAuth Client riêng (`brands.<trường>.google_client_id/secret` trong `config.json`), danh sách tên miền riêng,
-và một zone Captive Portal riêng trên pfSense.
+| Nơi | Giao diện | Trang portal |
+|---|---|---|
+| WASS | đỏ, logo WASS | `pfsense-pages/wass/` |
+| Penn | navy, logo PennSchool | `pfsense-pages/penn/` |
+| RT Holdings | (chờ logo/website) | `pfsense-pages/rt/` |
+
+Một backend dùng chung: `auth.truongtayuc.edu.vn` (RDS), một OAuth Client, một chứng chỉ HTTPS.
+(Backend vẫn cho phép đặt `public_base_url` / OAuth Client riêng từng nơi trong `brands.<nơi>` nếu sau này cần.)
 
 ## Thành phần
 
