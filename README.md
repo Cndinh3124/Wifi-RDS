@@ -10,6 +10,17 @@ Thiết bị (VLAN 200, DHCP/gateway = pfSense 172.16.200.2)
                                                      └─ mật khẩu dùng 1 lần ─► RADIUS ─► module wifi_google
 ```
 
+## Các trường (tách riêng, không gộp)
+
+| Trường | Tài khoản Google | Backend | Trang portal |
+|---|---|---|---|
+| WASS | `@truongtayuc.edu.vn`, `@wass.edu.vn` | `auth.truongtayuc.edu.vn` | `pfsense-pages/wass/` |
+| Penn | `@penn.edu.vn` | `auth.penn.edu.vn` | `pfsense-pages/penn/` |
+| RT Holdings | `@rtholdings.edu.vn` | `auth.rtholdings.edu.vn` | chưa có (chờ logo/giao diện) |
+
+Mỗi trường có OAuth Client riêng (`brands.<trường>.google_client_id/secret` trong `config.json`), danh sách tên miền riêng,
+và một zone Captive Portal riêng trên pfSense.
+
 ## Thành phần
 
 | Thư mục | Nội dung |

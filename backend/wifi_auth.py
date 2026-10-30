@@ -35,10 +35,15 @@ def load_config(path):
     c.setdefault("pfsense_portal_hosts", ["172.16.200.2"])
     c.setdefault("google_auth_url", "https://accounts.google.com/o/oauth2/v2/auth")
     c.setdefault("google_token_url", "https://oauth2.googleapis.com/token")
-    for k in ("public_base_url", "google_client_id", "google_client_secret", "brands"):
-        if not c.get(k):
-            raise SystemExit(f"config.json thiếu khóa bắt buộc: {k}")
-    c["public_base_url"] = c["public_base_url"].rstrip("/")
+    if not c.get("brands"):
+        raise SystemExit("config.json thiếu khóa bắt buộc: brands")
+    # Mỗi trường (brand) có thể có địa chỉ backend + OAuth Client riêng; không khai báo thì dùng giá trị chung.
+    for name, bc in c["brands"].items():
+        for k in ("public_base_url", "google_client_id", "google_client_secret"):
+            v = bc.get(k) or c.get(k)
+            if not v:
+                raise SystemExit(f"config.json: trường '{name}' thiếu {k} (khai báo trong brands.{name} hoặc ở mức chung)")
+            bc[k] = v.rstrip("/") if k == "public_base_url" else v
     return c
 
 
@@ -207,8 +212,8 @@ class H(BaseHTTPRequestHandler):
             STATES[state] = dict(brand=brand, portal=portal, nonce=nonce,
                                  exp=now() + CFG["state_ttl_seconds"])
         params = {
-            "client_id": CFG["google_client_id"],
-            "redirect_uri": CFG["public_base_url"] + "/auth/google/callback",
+            "client_id": bc["google_client_id"],
+            "redirect_uri": bc["public_base_url"] + "/auth/google/callback",
             "response_type": "code",
             "scope": "openid email profile",
             "state": state,
@@ -225,14 +230,15 @@ class H(BaseHTTPRequestHandler):
         if not st:
             return self.error_page("", "expired")
         brand, portal = st["brand"], st["portal"]
+        bc = CFG["brands"][brand]
         if q.get("error"):
             return self.error_page(brand, "google_cancel", portal)
         try:
             data = urllib.parse.urlencode({
                 "code": q.get("code", ""),
-                "client_id": CFG["google_client_id"],
-                "client_secret": CFG["google_client_secret"],
-                "redirect_uri": CFG["public_base_url"] + "/auth/google/callback",
+                "client_id": bc["google_client_id"],
+                "client_secret": bc["google_client_secret"],
+                "redirect_uri": bc["public_base_url"] + "/auth/google/callback",
                 "grant_type": "authorization_code",
             }).encode()
             req = urllib.request.Request(CFG["google_token_url"], data=data,
@@ -246,7 +252,7 @@ class H(BaseHTTPRequestHandler):
             log.error("đổi code với Google thất bại: %s", e)
             return self.error_page(brand, "server", portal)
 
-        if (claims.get("aud") != CFG["google_client_id"]
+        if (claims.get("aud") != bc["google_client_id"]
                 or claims.get("iss") not in ("accounts.google.com", "https://accounts.google.com")
                 or float(claims.get("exp", 0)) < now()
                 or claims.get("nonce") != st["nonce"]):

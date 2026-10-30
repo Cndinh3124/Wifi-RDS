@@ -138,18 +138,23 @@ Các khoá trong `/etc/wifi-auth/config.json`:
 
 ## Bước 6 — nginx
 
+Mỗi trường có **tên miền backend và chứng chỉ riêng**: WASS `auth.truongtayuc.edu.vn`, Penn `auth.penn.edu.vn`, RT `auth.rtholdings.edu.vn`.
+
 ```bash
-install -d /var/www/wifi/wass /var/www/wifi/penn
+cd /root/Wifi-RDS
+install -d /var/www/wifi/wass /var/www/wifi/penn /var/www/wifi/rt
 cp nginx-pages/wass/error.html /var/www/wifi/wass/
 cp nginx-pages/penn/error.html /var/www/wifi/penn/
+install -m 644 nginx/wifi-auth-common.conf /etc/nginx/snippets/
 install -m 644 nginx/wifi-auth.conf /etc/nginx/sites-available/
-ln -s /etc/nginx/sites-available/wifi-auth.conf /etc/nginx/sites-enabled/
+nano /etc/nginx/sites-available/wifi-auth.conf     # chú thích (#) khối server của trường CHƯA có chứng chỉ
+ln -sf /etc/nginx/sites-available/wifi-auth.conf /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 nginx -t && systemctl reload nginx
 ```
 
-**Mong đợi:** từ máy trong VLAN 200 (đã đăng nhập portal ở Bước 2), `https://auth.truongtayuc.edu.vn/healthz` trả về `ok` và không có cảnh báo chứng chỉ.
-**Nếu lỗi:** UFW đang bật thì `ufw allow 443/tcp`. Ngoài ra kiểm tra MX có cho VLAN 204 (đường ra của pfSense) tới `172.16.203.20:443` không.
+**Mong đợi:** từ máy trong VLAN 200 (đã đăng nhập portal), `https://auth.truongtayuc.edu.vn/healthz` trả về `ok`, không cảnh báo chứng chỉ.
+**Nếu lỗi:** `nginx -t` báo không thấy file chứng chỉ → trường đó chưa có chứng chỉ, chú thích khối server tương ứng. UFW đang bật → `ufw allow 443/tcp`.
 
 ## Bước 7 — Nối FreeRADIUS với wifi-auth
 

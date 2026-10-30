@@ -1,36 +1,38 @@
 {
-  "public_base_url": "https://auth.truongtayuc.edu.vn",
-  "google_client_id": "XXXXXXXX.apps.googleusercontent.com",
-  "google_client_secret": "DIEN_SECRET_TREN_RDS_KHONG_GUI_CHO_AI",
   "listen_host": "127.0.0.1",
   "listen_port": 8090,
   "db_path": "/var/lib/wifi-auth/logins.db",
   "token_ttl_seconds": 120,
-  "meraki_login_hosts": [
-    "network-auth.com"
-  ],
-  "pfsense_portal_hosts": [
-    "172.16.200.2"
-  ],
+  "meraki_login_hosts": ["network-auth.com"],
+  "pfsense_portal_hosts": ["172.16.200.2"],
+
   "brands": {
     "wass": {
       "display_name": "WASS",
       "color": "#B32025",
-      "allowed_domains": [
-        "truongtayuc.edu.vn",
-        "wass.edu.vn",
-        "rtholdings.edu.vn"
-      ],
-      "allow_any_google_account": false
+      "allowed_domains": ["truongtayuc.edu.vn", "wass.edu.vn"],
+      "allow_any_google_account": false,
+      "public_base_url": "https://auth.truongtayuc.edu.vn",
+      "google_client_id": "XXXXXXXX-wass.apps.googleusercontent.com",
+      "google_client_secret": "DIEN_SECRET_TREN_RDS_KHONG_GUI_CHO_AI"
     },
     "penn": {
       "display_name": "PennSchool",
       "color": "#1E386B",
-      "allowed_domains": [
-        "penn.edu.vn",
-        "rtholdings.edu.vn"
-      ],
-      "allow_any_google_account": false
+      "allowed_domains": ["penn.edu.vn"],
+      "allow_any_google_account": false,
+      "public_base_url": "https://auth.penn.edu.vn",
+      "google_client_id": "XXXXXXXX-penn.apps.googleusercontent.com",
+      "google_client_secret": "DIEN_SECRET_TREN_RDS_KHONG_GUI_CHO_AI"
+    },
+    "rt": {
+      "display_name": "RT Holdings",
+      "color": "#1F1F24",
+      "allowed_domains": ["rtholdings.edu.vn"],
+      "allow_any_google_account": false,
+      "public_base_url": "https://auth.rtholdings.edu.vn",
+      "google_client_id": "XXXXXXXX-rt.apps.googleusercontent.com",
+      "google_client_secret": "DIEN_SECRET_TREN_RDS_KHONG_GUI_CHO_AI"
     }
   }
 }
