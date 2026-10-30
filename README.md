@@ -25,7 +25,7 @@ Thiết bị (VLAN 200, DHCP/gateway = pfSense 172.16.200.2)
 
 - Captive Portal pfSense (zone `wifirds`) chạy, xác thực qua FreeRADIUS → Google Secure LDAP.
 - `wifi-auth` và module `wifi_google` đã cài trên RDS; nút Google **đang tắt** (`GOOGLE_ENABLED = false` trong `portal.html`)
-  cho tới khi có HTTPS (`wifi.truongtayuc.edu.vn`) và OAuth Client trên Google Cloud.
+  cho tới khi có HTTPS (`auth.truongtayuc.edu.vn`) và OAuth Client trên Google Cloud.
 
 ## Bảo mật
 

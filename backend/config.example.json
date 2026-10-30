@@ -1,5 +1,5 @@
 {
-  "public_base_url": "https://wifi.truongtayuc.edu.vn",
+  "public_base_url": "https://auth.truongtayuc.edu.vn",
   "google_client_id": "XXXXXXXX.apps.googleusercontent.com",
   "google_client_secret": "DIEN_SECRET_TREN_RDS_KHONG_GUI_CHO_AI",
   "listen_host": "127.0.0.1",

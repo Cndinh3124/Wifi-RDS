@@ -5,7 +5,7 @@ Người dùng bấm **Đăng nhập bằng Google** → chọn hoặc xác minh
 ```
 Điện thoại (VLAN 200, gateway + DHCP = pfSense 172.16.200.2)
   (1) pfSense Captive Portal hiện trang portal.html (đã tải lên pfSense)
-  (2) bấm Google ─► https://wifi.truongtayuc.edu.vn/auth/google/start  (wifi-auth trên RDS, qua nginx)
+  (2) bấm Google ─► https://auth.truongtayuc.edu.vn/auth/google/start  (wifi-auth trên RDS, qua nginx)
                  ─► accounts.google.com ─► quay lại /auth/google/callback
   (3) wifi-auth kiểm tra tên miền (allowed_domains của vùng), tạo mật khẩu dùng 1 lần (120 giây)
       và để trình duyệt tự gửi auth_user/auth_pass về $PORTAL_ACTION$ của pfSense
@@ -91,17 +91,18 @@ systemctl start freeradius
 
 Google bắt buộc địa chỉ trả về là **HTTPS + tên miền** (không dùng IP).
 
-1. **DNS nội bộ trên pfSense:** Services → DNS Resolver → Host Overrides → thêm `wifi` / `truongtayuc.edu.vn` → `172.16.203.20`.
+1. **DNS nội bộ trên pfSense:** Services → DNS Resolver → Host Overrides → **Add**: Host `auth`, Domain `truongtayuc.edu.vn`, IP `172.16.203.20`, Description `wifi-auth backend (RDS)`.
+   **Giữ nguyên** bản ghi `wifi.truongtayuc.edu.vn → 172.16.200.2` đang có (dành cho pfSense Captive Portal).
    Người dùng VLAN 200 lấy DNS từ pfSense nên không cần bản ghi công khai.
 2. **Chứng chỉ (trên RDS)** bằng DNS-01 — cần quyền thêm bản ghi TXT ở DNS công khai của `truongtayuc.edu.vn`:
    ```bash
    apt install -y nginx certbot
-   certbot certonly --manual --preferred-challenges dns -d wifi.truongtayuc.edu.vn
+   certbot certonly --manual --preferred-challenges dns -d auth.truongtayuc.edu.vn
    ```
-   Thêm bản ghi `TXT _acme-challenge.wifi.truongtayuc.edu.vn` theo yêu cầu, rồi bấm Enter. Lưu ý: `--manual` không tự gia hạn (90 ngày).
+   Thêm bản ghi `TXT _acme-challenge.auth.truongtayuc.edu.vn` theo yêu cầu, rồi bấm Enter. Lưu ý: `--manual` không tự gia hạn (90 ngày).
 
-**Mong đợi:** có `/etc/letsencrypt/live/wifi.truongtayuc.edu.vn/fullchain.pem`.
-**Nếu lỗi:** `dig TXT _acme-challenge.wifi.truongtayuc.edu.vn @8.8.8.8` phải thấy bản ghi trước khi bấm Enter.
+**Mong đợi:** có `/etc/letsencrypt/live/auth.truongtayuc.edu.vn/fullchain.pem`.
+**Nếu lỗi:** `dig TXT _acme-challenge.auth.truongtayuc.edu.vn @8.8.8.8` phải thấy bản ghi trước khi bấm Enter.
 
 ## Bước 4 — OAuth Client trên Google Cloud
 
@@ -109,7 +110,7 @@ Google bắt buộc địa chỉ trả về là **HTTPS + tên miền** (không 
 
 1. Tạo project, ví dụ `wifi-login`.
 2. Google Auth Platform → Audience: **Internal** nếu mọi tên miền (`truongtayuc.edu.vn`, `wass.edu.vn`, `rtholdings.edu.vn`, `penn.edu.vn`) nằm trong **cùng một** Google Workspace; **External** nếu thuộc nhiều Workspace khác nhau (Internal sẽ chặn tài khoản của Workspace khác). Scope: `openid`, `email`, `profile`.
-3. Clients → Create client → **Web application** → Authorized redirect URI: `https://wifi.truongtayuc.edu.vn/auth/google/callback`
+3. Clients → Create client → **Web application** → Authorized redirect URI: `https://auth.truongtayuc.edu.vn/auth/google/callback`
 4. Giữ Client ID và Client secret. **Secret chỉ điền trên RDS.**
 
 ## Bước 5 — Cài wifi-auth trên RDS
@@ -126,7 +127,7 @@ Script tạo user `wifiauth`, chép chương trình vào `/opt/wifi-auth/`, tạ
 Chưa có OAuth Client vẫn chạy được; điền `google_client_id`/`google_client_secret` sau (Bước 4) rồi `systemctl restart wifi-auth`.
 
 Các khoá trong `/etc/wifi-auth/config.json`:
-- `public_base_url`: `https://wifi.truongtayuc.edu.vn`
+- `public_base_url`: `https://auth.truongtayuc.edu.vn`
 - `google_client_id`, `google_client_secret`: từ Bước 4
 - `pfsense_portal_hosts`: host trong địa chỉ portal pfSense, mặc định `172.16.200.2`
 - `allowed_domains` của từng vùng — mặc định:
@@ -147,7 +148,7 @@ rm -f /etc/nginx/sites-enabled/default
 nginx -t && systemctl reload nginx
 ```
 
-**Mong đợi:** từ máy trong VLAN 200 (đã đăng nhập portal ở Bước 2), `https://wifi.truongtayuc.edu.vn/healthz` trả về `ok` và không có cảnh báo chứng chỉ.
+**Mong đợi:** từ máy trong VLAN 200 (đã đăng nhập portal ở Bước 2), `https://auth.truongtayuc.edu.vn/healthz` trả về `ok` và không có cảnh báo chứng chỉ.
 **Nếu lỗi:** UFW đang bật thì `ufw allow 443/tcp`. Ngoài ra kiểm tra MX có cho VLAN 204 (đường ra của pfSense) tới `172.16.203.20:443` không.
 
 ## Bước 7 — Nối FreeRADIUS với wifi-auth
@@ -191,12 +192,12 @@ Sau đó trên pfSense **Diagnostics → Authentication** với tài khoản c�
 1. `portal.html` mặc định **chỉ có nút Google** (`var GOOGLE_ENABLED = true;`).
    - Muốn hiện thêm ô email + mật khẩu Google (qua LDAP) bên dưới: `var PASSWORD_LOGIN = true;`
    - Backend Google chưa sẵn sàng: `var GOOGLE_ENABLED = false;` → trang chỉ còn ô email + mật khẩu.
-   - Nếu tên miền khác `wifi.truongtayuc.edu.vn`, sửa dòng `var BACKEND = 'https://wifi.truongtayuc.edu.vn';`.
+   - Nếu tên miền khác `auth.truongtayuc.edu.vn`, sửa dòng `var BACKEND = 'https://auth.truongtayuc.edu.vn';`.
 2. pfSense → Captive Portal → zone VLAN 200 → Edit:
    - **Portal page contents:** tải lên `pfsense-pages/wass/portal.html`.
    - **Auth error page contents:** tải lên `pfsense-pages/wass/auth-error.html`.
 3. Tab **Allowed Hostnames** (cho truy cập trước khi đăng nhập), thêm:
-   `wifi.truongtayuc.edu.vn`, `accounts.google.com`, `accounts.google.com.vn`, `ssl.gstatic.com`, `www.gstatic.com`,
+   `auth.truongtayuc.edu.vn`, `accounts.google.com`, `accounts.google.com.vn`, `ssl.gstatic.com`, `www.gstatic.com`,
    `fonts.gstatic.com`, `apis.google.com`, `accounts.youtube.com`
    Google có thể đổi tên miền; trang Google tải không hết thì xem trình duyệt bị chặn tên miền nào rồi thêm vào.
 4. Tab **Allowed IP Addresses:** thêm `172.16.203.20`.
