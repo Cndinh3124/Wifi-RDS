@@ -88,11 +88,25 @@
     </div>
 
     <h2>Đăng nhập Wi-Fi</h2>
-    <p class="sub">Đăng nhập bằng <b>email trường</b> và <b>mật khẩu Google</b> của bạn (<b>@penn.edu.vn</b>, <b>@rtholdings.edu.vn</b>).</p>
+    <p class="sub" id="sub">Đăng nhập bằng tài khoản Google do nhà trường cấp (<b>@penn.edu.vn</b>, <b>@rtholdings.edu.vn</b>). Không cần nhập mật khẩu Wi-Fi.</p>
 
     <div class="err" id="err" role="alert"></div>
 
-    <form id="pf" method="post" action="$PORTAL_ACTION$" novalidate>
+    <div id="gwrap">
+      <a class="gbtn" id="g" href="#" rel="noopener"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span>Đăng nhập bằng Google</span></a>
+
+      <p class="row" style="font-size:12.5px;color:var(--muted);line-height:1.5">Khi tiếp tục, bạn đồng ý với Điều khoản sử dụng Wi-Fi của nhà trường.</p>
+
+      <div class="note">
+      Nếu Google báo lỗi <b>403 disallowed_useragent</b>: hãy mở <b>Safari</b> hoặc <b>Chrome</b> rồi truy cập
+      <b>http://neverssl.com</b> để đăng nhập lại.
+      <br><button type="button" id="cp">Sao chép liên kết trang này</button>
+    </div>
+    </div>
+
+    <div id="pwwrap" style="display:none">
+      <div class="or" id="ordiv"><span>hoặc đăng nhập bằng mật khẩu</span></div>
+      <form id="pf" method="post" action="$PORTAL_ACTION$" novalidate>
       <label for="u">Email trường</label>
       <div class="field">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
@@ -109,17 +123,6 @@
       <input name="accept" type="hidden" value="Login">
       <button class="btn" id="b" type="submit">Kết nối</button>
     </form>
-
-    <p class="row" style="font-size:12.5px;color:var(--muted);line-height:1.5">Khi tiếp tục, bạn đồng ý với Điều khoản sử dụng Wi-Fi của nhà trường.</p>
-
-    <div id="gwrap" style="display:none">
-      <div class="or"><span>hoặc</span></div>
-      <a class="gbtn" id="g" href="#" rel="noopener"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span>Đăng nhập bằng Google</span></a>
-      <div class="note">
-      Nếu Google báo lỗi <b>403 disallowed_useragent</b>: hãy mở <b>Safari</b> hoặc <b>Chrome</b> rồi truy cập
-      <b>http://neverssl.com</b> để đăng nhập lại.
-      <br><button type="button" id="cp">Sao chép liên kết trang này</button>
-    </div>
     </div>
 
     <div class="help">
@@ -134,7 +137,9 @@
 <script>
 (function(){
   // ===== ĐĂNG NHẬP GOOGLE: đổi thành true khi backend wifi-auth trên RDS đã sẵn sàng (HTTPS + OAuth) =====
-  var GOOGLE_ENABLED = false;
+  var GOOGLE_ENABLED = true;
+  // Hiện thêm ô email + mật khẩu Google (qua LDAP) bên dưới nút Google: đổi thành true nếu cần
+  var PASSWORD_LOGIN = false;
   var BACKEND = 'https://wifi.truongtayuc.edu.vn';
   var BRAND = 'penn';
   // pfSense thay các macro dưới đây khi phục vụ trang
@@ -156,21 +161,36 @@
     btn.disabled = true; btn.textContent = 'Đang kết nối…';
   });
 
-  // --- Nút Google (ẩn cho tới khi GOOGLE_ENABLED = true) ---
-  if (GOOGLE_ENABLED && !PREVIEW) {
-    document.getElementById('gwrap').style.display = 'block';
-    var g = document.getElementById('g');
+  // --- Hiển thị ---
+  var gwrap = document.getElementById('gwrap'), pwwrap = document.getElementById('pwwrap');
+  if (!GOOGLE_ENABLED) {
+    // Chưa bật Google: chỉ còn đăng nhập bằng mật khẩu
+    gwrap.style.display = 'none'; pwwrap.style.display = 'block';
+    document.getElementById('ordiv').style.display = 'none';
+    document.getElementById('sub').innerHTML = document.getElementById('sub').innerHTML
+      .replace('Đăng nhập bằng tài khoản Google do nhà trường cấp', 'Đăng nhập bằng email trường và mật khẩu Google')
+      .replace(' Không cần nhập mật khẩu Wi-Fi.', '');
+  } else if (PASSWORD_LOGIN) {
+    pwwrap.style.display = 'block';
+  }
+
+  // --- Nút Google ---
+  var g = document.getElementById('g');
+  if (PREVIEW) {
+    g.classList.add('dis');
+    if (GOOGLE_ENABLED) show('Chế độ xem thử: trang chưa được phục vụ bởi pfSense Captive Portal.');
+  } else {
     g.href = BACKEND + '/auth/google/start?' + new URLSearchParams({
       brand: BRAND, portal: 'pfsense', action: ACTION, zone: ZONE, redirurl: REDIR
     }).toString();
     g.addEventListener('click', function(){ g.classList.add('dis'); g.querySelector('span').textContent = 'Đang chuyển tới Google…'; });
-    document.getElementById('cp').onclick = function(){
-      var b = this, l = location.href;
-      (navigator.clipboard ? navigator.clipboard.writeText(l) : Promise.reject()).then(
-        function(){ b.textContent = 'Đã sao chép ✓'; },
-        function(){ window.prompt('Sao chép liên kết:', l); });
-    };
   }
+  document.getElementById('cp').onclick = function(){
+    var b = this, l = location.href;
+    (navigator.clipboard ? navigator.clipboard.writeText(l) : Promise.reject()).then(
+      function(){ b.textContent = 'Đã sao chép ✓'; },
+      function(){ window.prompt('Sao chép liên kết:', l); });
+  };
 })();
 </script>
 </body>

@@ -188,8 +188,10 @@ Sau đó trên pfSense **Diagnostics → Authentication** với tài khoản c�
 
 ## Bước 8 — Trang Google trên pfSense
 
-1. Mở `portal.html`, sửa dòng `var GOOGLE_ENABLED = false;` thành `var GOOGLE_ENABLED = true;` (mặc định trang chỉ có ô email + mật khẩu Google qua LDAP; bật dòng này mới hiện nút Google).
-   Nếu tên miền khác `wifi.truongtayuc.edu.vn`, sửa luôn dòng `var BACKEND = 'https://wifi.truongtayuc.edu.vn';`.
+1. `portal.html` mặc định **chỉ có nút Google** (`var GOOGLE_ENABLED = true;`).
+   - Muốn hiện thêm ô email + mật khẩu Google (qua LDAP) bên dưới: `var PASSWORD_LOGIN = true;`
+   - Backend Google chưa sẵn sàng: `var GOOGLE_ENABLED = false;` → trang chỉ còn ô email + mật khẩu.
+   - Nếu tên miền khác `wifi.truongtayuc.edu.vn`, sửa dòng `var BACKEND = 'https://wifi.truongtayuc.edu.vn';`.
 2. pfSense → Captive Portal → zone VLAN 200 → Edit:
    - **Portal page contents:** tải lên `pfsense-pages/wass/portal.html`.
    - **Auth error page contents:** tải lên `pfsense-pages/wass/auth-error.html`.
